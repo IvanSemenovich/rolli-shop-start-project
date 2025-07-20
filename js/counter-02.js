@@ -1,22 +1,19 @@
 window.addEventListener("click", function (event) {
-  if (event.target.dataset.action === "plus") {
+  const action = event.target.dataset.action;
+  const isInCard = event.target.closest(".card");
+
+  if ((action === "plus" || action === "minus") && isInCard) {
     const qtySelector = event.target.closest(".counter-wrapper");
+    if (!qtySelector) return;
 
     const counter = qtySelector.querySelector("[data-counter]");
 
-    console.log(counter);
-    console.log((counter.innerText = +counter.innerText));
+    if (action === "plus") {
+      counter.innerText = parseInt(counter.innerText) + 1;
+    }
 
-    counter.innerText++;
-  }
-
-  if (event.target.dataset.action === "minus") {
-    const qtySelector = event.target.closest(".counter-wrapper");
-
-    const counter = qtySelector.querySelector("[data-counter]");
-
-    if (parseInt(counter.innerText) >= 1) {
-      counter.innerText = --counter.innerText;
+    if (action === "minus" && parseInt(counter.innerText) > 1) {
+      counter.innerText = parseInt(counter.innerText) - 1;
     }
   }
 });
@@ -41,13 +38,23 @@ function addProductToCart(event) {
     console.log(productInfo);
 
     cartItems.push(productInfo);
-    renderCartSummaryItems();
-  }
-}
+    const cartWrapper = document.querySelector(".cart-wrapper");
+    const itemInCart = cartWrapper.querySelector(
+      `[data-id="${productInfo.id}"]`
+    );
 
-function renderCartSummaryItems() {
-  cartItems.forEach((element) => {
-    innerHTML = `<div class="cart-item" data-id="${element.id}">
+    if (itemInCart) {
+      const counterElement = itemInCart.querySelector("[data-counter]");
+      counterElement.innerText =
+        parseInt(counterElement.innerText) + parseInt(productInfo.qtySelected);
+    } else {
+      renderCartSummaryItems();
+    }
+  }
+
+  function renderCartSummaryItems() {
+    cartItems.forEach((element) => {
+      innerHTML = `<div class="cart-item" data-id="${element.id}">
 								<div class="cart-item__top">
 									<div class="cart-item__img">
 										<img src="${element.img}" alt="${element.title}">
@@ -68,7 +75,7 @@ function renderCartSummaryItems() {
 											<div class="price">
 												<div class="price__currency">${element.price}</div>
 											</div>
-
+                    <div class="items__control" data-action="remove">✖</div>
 										</div>
 										
 
@@ -76,7 +83,15 @@ function renderCartSummaryItems() {
 								</div>
 							</div>
         `;
-  });
-  const cartWrapper = document.querySelector(".cart-item");
-  cartWrapper.insertAdjacentHTML("beforeend", innerHTML);
+    });
+
+    const cartWrapper = document.querySelector(".cart-wrapper");
+    cartWrapper.insertAdjacentHTML("beforeend", innerHTML);
+  }
 }
+
+// function removeItemFromCart(event) {
+//   const removeButton = event.target.dataset.action;
+//   console.log(removeButton);
+// }
+// removeItemFromCart();
